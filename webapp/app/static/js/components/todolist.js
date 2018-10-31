@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Todo from './todo'
 import TodoInput from './todoinput'
+import TodoStore from '../stores/TodoStore'
 var uf = require('../functions/user_functions')
 
 export default class TodoList extends Component {
@@ -8,7 +9,7 @@ export default class TodoList extends Component {
         super(props);
         this.state = {
             //store todos
-            todos : [],
+            todos : TodoStore.getAll(),
 
         }
         this.handleForm = this.handleForm.bind(this)
@@ -16,13 +17,13 @@ export default class TodoList extends Component {
     
     //get todos when component mounts first time
     componentWillMount() {
-        uf.getTodos(this)
+      //  uf.getTodos(this)
     }
     
     //invoked from 'TodoInput', add todo to DB and GET todos
     handleForm(data){
-        uf.addTodo(data, this)
-        uf.getTodos(this)
+       // uf.addTodo(data, this)
+       // uf.getTodos(this)
     }
 
     
