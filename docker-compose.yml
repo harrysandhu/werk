@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+    webapp:
+      build: ./webapp
+      volumes: 
+        - ./webapp:/usr/src/app
+      ports:
+        - 4000:4000
+    
