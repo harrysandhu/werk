@@ -24,8 +24,8 @@ module.exports = {
     * sets state : todos
     * @returns bool
     */
-    addTodo : function(data, self){
-        const todo = data
+    addTodo : function(content){
+        const todo = content
 
         axios({
             method:'POST',
@@ -50,7 +50,7 @@ module.exports = {
     * sets state : todos
     * @returns bool
     */
-    getTodos : function(self){
+    getTodos : function(){
 
         axios({
             method:'GET',
@@ -60,9 +60,8 @@ module.exports = {
             if(response.data.success){
                 //array of 'todo' objects
                 console.log(response.data.todos)
-                self.setState({todos:response.data.todos})
-                
-                return true;
+                return response.data.todos
+            
             }else{
                 return false;
             }
@@ -86,8 +85,7 @@ module.exports = {
             }
         })
     },
-    toggleTodoStatus: function(self){
-        const { id, status} = self.state
+    toggleTodo: function(id, status){
         console.log(id)
         axios({
             method:'POST',
@@ -99,7 +97,6 @@ module.exports = {
         }).then(response => {
             console.log(response.data.success)
             if(response.data.success){
-                self.setState({status:response.data.status})
                 return true
             }else{
                 return false
