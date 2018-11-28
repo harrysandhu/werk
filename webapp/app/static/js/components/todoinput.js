@@ -15,16 +15,18 @@ export default class TodoInput extends Component {
         this.handleForm = this.handleForm.bind(this)
         this.handleInput = this.handleInput.bind(this)
     }
+    
     //handles the form submission
     handleForm(e){
         //get input "value" from state var
         var {value} = this.state
+        const tempVal = value
         // check if value empty, or a bunch of whitespaces
         if(value.trim() !== ""){
             // [ON INPUT VALUE] set submitted to true, which will act as a trigger to refresh the state variable and input 'value'   
-            this.setState({submitted:true})
+            this.setState({submitted:true, value:''})
             //return the function (and trigger), passed from props
-           this.props.handleForm(value)
+           this.props.handleForm(va)
            
         }
         e.preventDefault()
