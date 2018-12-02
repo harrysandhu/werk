@@ -100,7 +100,20 @@ def query():
     return jsonify({"error": "Invalid parameters."})    
 
 
+@main.route("/api/todos", methods=['GET'])
+def todos():
+    if request.method == "GET" and session:
+        user_id = session['id']
+        todos = Todo.query.filter_by(user_id=user_id).all()
+        t_list = []
 
+        for t in todos:
+            t_obj = {'id':t.id, 'content':t.content, 'date_posted':  t.date_posted, 'status':t.status }
+            t_list.insert(0, t_obj)
+        
+        print(t_list)
+        return jsonify({'todos':t_list, 'success': 'true'})
+    return jsonify({"error": "Invalid Request"})   
 
 @main.route("/api/todo", methods=['GET', 'POST'])
 def todo():
@@ -114,18 +127,16 @@ def todo():
             return jsonify({'id':t.id, 'content':t.content, 'date_posted':  t.date_posted, 'status':t.status,  'success': 'true'})
         else:
             return jsonify({'error':'Something went wrong.'})   
-    elif request.method == "GET":
-        user_id = session['id']
-        todos = Todo.query.filter_by(user_id=user_id).all()
-        t_list = []
-
-        for t in todos:
-            t_obj = {'id':t.id, 'content':t.content, 'date_posted':  t.date_posted, 'status':t.status }
-            t_list.insert(0, t_obj)
-        
-        print(t_list)
-        return jsonify({'todos':t_list, 'success': 'true'})
-
+    if request.method == 'GET':
+        id = request.args.get('id')
+        try:
+            todo = Todo.query.filter_by(id=id).first()
+            if todo:
+                t_obj = {'id':todo.id, 'content':todo.content, 'status':todo.status }
+                return jsonify({'todo': t_obj, 'success': 'true'})
+        except:
+            return jsonify({'error': 'Invalid Request'})
+    return jsonify({"error": "Something Went Wrong."}) 
 
 @main.route("/api/todo/status", methods=['POST'])
 def todoStatus():
@@ -142,3 +153,20 @@ def todoStatus():
         return jsonify({'status':todo.status, 'success':'true'})
     except:
         return jsonify({'error':'Something went wrong.'})
+
+
+@main.route("/api/todo/delete", methods=['POST'])
+def deleteTodo():
+    data = request.get_json()
+    id = data['id']
+    if session['id']:
+        try:
+            todo = Todo.query.filter_by(id=id).delete()
+            print(todo)
+            db.session.commit()
+            print('yo')
+            return jsonify({'success':'true'})
+        except:
+            print('nah')
+            return jsonify({'error': 'Something went wrong'})
+    return jsonify({'error': 'Invalid request.'})   

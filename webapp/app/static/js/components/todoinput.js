@@ -26,7 +26,7 @@ export default class TodoInput extends Component {
             // [ON INPUT VALUE] set submitted to true, which will act as a trigger to refresh the state variable and input 'value'   
             this.setState({submitted:true, value:''})
             //return the function (and trigger), passed from props
-           this.props.handleForm(va)
+           this.props.handleForm(tempVal)
            
         }
         e.preventDefault()
