@@ -55,19 +55,6 @@ module.exports = {
             reject('Something went wrong!')
         })
     },
-    getTodo : function(id){
-        return new Promise((resolve, reject) => {
-            resolve(
-                axios({
-                    method: 'GET',
-                    url: 'api/todo',
-                    params : {
-                        id : id
-                    }
-                })
-            )
-        })
-    },
     toggleTodo: function(id, status){
         return new Promise((resolve, reject) => {
             resolve(

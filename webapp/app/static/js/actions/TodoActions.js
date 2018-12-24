@@ -2,10 +2,9 @@ import dispatcher from '../dispatcher'
 
 
 module.exports = {
-    getTodo : (id) => {
+    receiveLastCreatedTodo : () => {
         dispatcher.dispatch({
-            type: 'GET_TODO',
-            id
+            type: 'RECEIVE_LAST_CREATED_TODO'
         })
     },
     createTodo : (content) => {
@@ -25,6 +24,13 @@ module.exports = {
         dispatcher.dispatch({
             type: 'DELETE_TODO',
             id
+        })
+    },
+    editTodo: (id, content) => {
+        dispatcher.dispatch({
+            type: 'EDIT_TODO',
+            id,
+            content
         })
     },
     receiveTodos : () =>{

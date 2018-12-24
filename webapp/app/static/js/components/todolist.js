@@ -25,8 +25,8 @@ export default class TodoList extends Component {
             this.setState({loading: false, todos: TodoStore.getAll()})
         })
         TodoStore.on('create', () => {
-            // TODO: get the created todo and add to state list
-            TodoActions.receiveTodos()
+            // TODO: get the created todo and add to state 
+            TodoStore.receiveTodos()
         })
         TodoStore.on('delete', ()=>{
             // TODO: get the id of the deleted todo and delete from state list

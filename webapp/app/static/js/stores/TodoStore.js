@@ -6,26 +6,21 @@ class TodoStore extends EventEmitter {
     constructor(){
         super();
         this.todos = []
-        this.currentTodo = {}
+        this.lastCreatedTodo = {}
 
     }
-    getTodo(id){
-        uf.getTodo(id).then(
-            (response) => {
-                if(response.data.success){
-                    this.emit('todo_update')
-                    this.currentTodo = response.data.todo
-                    return true;
-                }
-            }
-        )
-    }
+
+
 
     createTodo(content){
             uf.createTodo(content).then(
                 (response) => {
                     if (response.data.success){
+                        this.lastCreatedTodo.id = response.data.id;
+                        this.lastCreatedTodo.content = response.data.content;
+                        this.lastCreatedTodo.status = response.data.status;
                         this.emit('create')
+
                         return true
 
                     }else{
@@ -33,6 +28,10 @@ class TodoStore extends EventEmitter {
                     }
                 }
             )
+    }
+
+    receiveLastCreatedTodo(){
+        return this.lastCreatedTodo
     }
 
     toggleTodo(id, status){
@@ -81,16 +80,10 @@ class TodoStore extends EventEmitter {
         return this.todos
     }
 
-    getCurrentTodo(){
-        return this.currentTodo
-    }
 
  
     handleActions(action){
         switch(action.type){
-            case 'GET_TODO':{
-                return this.getTodo(action.id)
-            }
             case 'CREATE_TODO': {
                 return this.createTodo(action.content)
             }
@@ -100,7 +93,9 @@ class TodoStore extends EventEmitter {
             case 'DELETE_TODO': {
                 return this.deleteTodo(action.id)
             }
-        
+            case 'EDIT_TODO': {
+                return this.editTodo(action.id, action.content)
+            }
             case 'RECEIVE_TODOS': {
                 return this.receiveTodos()
             }

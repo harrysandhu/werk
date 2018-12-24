@@ -1,19 +1,23 @@
 import React, { Component } from 'react'
 import TodoStore from '../stores/TodoStore'
 import TodoActions from '../actions/TodoActions'
-
-
+import EditTodo from './EditTodo'
 var uf = require('../functions/user_functions')
+
+
 export default class Todo extends Component {
     constructor(props) {
         super(props);
         this.state = {
             id: this.props.id,
             content : this.props.content,
-            status : this.props.status
+            status : this.props.status,
+            mode: 'view'
         }
         this.toggleTodo = this.toggleTodo.bind(this)
         this.deleteTodo = this.deleteTodo.bind(this)
+        this.editTodo = this.editTodo.bind(this)
+        this.save = this.save.bind(this)
     }
     
     //this.setState({viewId:this.props.viewId, content:this.props.content, status:this.props.status})
@@ -31,17 +35,34 @@ export default class Todo extends Component {
         TodoActions.deleteTodo(this.state.id)
     }
 
-  render() {
-      var status = this.state.status
+    editTodo(){
+        this.setState({'mode':'edit'})
+    }
 
-    return (
-      <div>
-      <p>
+    save(value){
+        this.setState({'content': value,'mode':'view'})
+    }
+    
+
+
+  render() {
+      var {status, content, mode} = this.state
+
+    if(mode == 'view'){
+        return (<div>
         <input type="checkbox" checked={status} onChange={this.toggleTodo} />
-        {this.state.content}
+        {content}
+        <button onClick={this.editTodo}>Edit</button>
         <button onClick={this.deleteTodo}>x</button>
-        </p>
-      </div>
-    )
+        
+        </div>)
+    }
+    else if(mode == 'edit'){
+        return (
+            <div>
+            <EditTodo todo={content} save={this.save}/>
+            </div>
+        )
+    }
   }
 }
