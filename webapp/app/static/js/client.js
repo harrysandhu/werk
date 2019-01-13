@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom'
 import LoginForm from './components/loginform'
 import RegForm from './components/regForm'
 import ModeButton from './components/modeButton'
+require('./test')
 
 
-
-class App extends Component {
+class Layout extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -47,4 +47,4 @@ class App extends Component {
 
 
 const root = document.getElementById('root')
-ReactDOM.render(<App />, root)
+ReactDOM.render(<Layout />, root)

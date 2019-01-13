@@ -18,23 +18,29 @@ module.exports = {
         })
     },
  /*
-    * @param todo
+    * @param self
     * axios request : POST 
-    * api/todo
-    * @returns a Promise
+    * api/todo 
+    * sets state : todos
+    * @returns bool
     */
-    createTodo : (todo) => {
-        return new Promise((resolve, reject) => {
-            resolve(
-                axios({
-                    method : 'POST',
-                    url: 'api/todo',
-                    data : {
-                        todo:todo
-                    }
-                })
-            );
-            reject('Something went wrong!')
+    addTodo : function(data, self){
+        const todo = data
+
+        axios({
+            method:'POST',
+            url: 'api/todo',
+            data: {
+                todo:todo
+
+            }
+        }).then(response => {
+            if(response.data.success){
+                return true;
+            }else{
+                console.log(response.data)
+                return false;
+            }
         })
     },
     /*
@@ -44,60 +50,61 @@ module.exports = {
     * sets state : todos
     * @returns bool
     */
-    receiveTodos : function(){
-        return new Promise((resolve, reject) => {
-            resolve(
-                axios({
-                    method: 'GET',
-                    url: 'api/todos'
-                })
-            )
-            reject('Something went wrong!')
-        })
-    },
-    getTodo : function(id){
-        return new Promise((resolve, reject) => {
-            resolve(
-                axios({
-                    method: 'GET',
-                    url: 'api/todo',
-                    params : {
-                        id : id
-                    }
-                })
-            )
-        })
-    },
-    toggleTodo: function(id, status){
-        return new Promise((resolve, reject) => {
-            resolve(
-                    axios({
-                    method:'POST',
-                    url: 'api/todo/status',
-                    data : {
-                        id : id,
-                        status : status
-                    }
-                })
-            )
-            reject('Something went wrong!')
-        })
+    getTodos : function(self){
 
+        axios({
+            method:'GET',
+            url:'api/todos',
+            
+        }).then(response =>{
+            if(response.data.success){
+                //array of 'todo' objects
+                console.log(response.data.todos)
+                self.setState({todos:response.data.todos})
+                
+                return true;
+            }else{
+                return false;
+            }
+        })
+    },
+     getTodo : function(self){
+         var id = self.props.viewId
+        axios({
+            method:'GET',
+            url:'api/get_todo',
+            
+        }).then(response =>{
+            if(response.data.success){
+                //array of 'todo' objects
+                console.log(response.data.todos)
+                self.setState({todos:response.data.todos})
+                
+                return true;
+            }else{
+                return false;
+            }
+        })
+    },
+    toggleTodoStatus: function(self){
+        const { id, status} = self.state
+        console.log(id)
+        axios({
+            method:'POST',
+            url: 'api/todo/status',
+            data : {
+                id : id,
+                status : status
+            }
+        }).then(response => {
+            console.log(response.data.success)
+            if(response.data.success){
+                self.setState({status:response.data.status})
+                return true
+            }else{
+                return false
+            }
+        })
     },
    
-   deleteTodo: function(id){
-        return new Promise((resolve, reject) => {
-            resolve(
-                    axios({
-                    method:'POST',
-                    url: 'api/todo/delete',
-                    data : {
-                        id : id
-                    }
-                })
-            )
-            reject('Something went wrong!')
-        })
-
-    },
 }
