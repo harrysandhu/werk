@@ -1,42 +1,67 @@
 import React, { Component } from 'react';
 import Todo from './todo'
-import TodoInput from './todoinput'
+
+
+
 var uf = require('../functions/user_functions')
+
+
 
 export default class TodoList extends Component {
     constructor(props){
-        super(props);
-        this.state = {
-            //store todos
-            todos : [],
+        super(props); 
+        this.handleDispatch = this.handleDispatch.bind(this)
+    }
+    handleDispatch(action) {
+         console.log('todolist_action_log', action)
+        switch(action.type){
+           
+            case 'TOGGLE_TODO':{
+                
+                return this.props.todoshandleAction(action)
+                break;
 
+            }
+            case 'DELETE_TODO':{
+                return this.props.todoshandleAction(action)
+                break;
+
+            }
+            case 'UPDATE_TODO':{
+                return this.props.todoshandleAction(action)
+                break;
+            }
         }
-        this.handleForm = this.handleForm.bind(this)
     }
-    
-    //get todos when component mounts first time
-    componentWillMount() {
-        uf.getTodos(this)
-    }
-    
-    //invoked from 'TodoInput', add todo to DB and GET todos
-    handleForm(data){
-        uf.addTodo(data, this)
-        uf.getTodos(this)
-    }
-
-    
-
    
-    render() {
-        //get todos from state
-        const {todos} = this.state
-        //get the todo components, with each item as <Todo />
-        const todoComponents = todos.map((todo) =>{return(<Todo key={todo.id} id={todo.id} content={todo.content} status={todo.status}/>)})
-        return (<div>
-         <TodoInput handleForm={this.handleForm} value=''/>
-        {todoComponents}
+    render(){
+        const {todos, todosById, loading} = this.props
+        if(loading == true){
+            return (
+                <div>loading.......</div>
+            )
+        }else{
+        var todo = {}
+        var todosArray = []
+        //todos is a hashtable
         
-        </div>);
+            todosById.map((id) => {
+                todosArray.push(todos[id])
+            })
+            //array of 
+
+          var mappedTodos =  todosArray.map((todo) =>{ 
+               return (<Todo key={todo.id} todo={todo} handleDispatch={this.handleDispatch} />)
+            })
+
+
+            return (
+               <div> x
+               {mappedTodos}
+               </div>
+            )
+        
+        }
     }
+    
 }

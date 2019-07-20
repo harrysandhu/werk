@@ -7,7 +7,7 @@ module.exports = {
     devtool: false,
     entry: {
        client: "./static/js/client.js",
-       user: "./static/js/user.js"
+       App: "./static/js/App.js"
     },
     module : {
         rules : [

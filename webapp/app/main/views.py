@@ -7,10 +7,19 @@ import hashlib, binascii
 import os
 import sys
 from sqlalchemy import func
+from marshmallow import schema, pprint
+from .schema.Schema import UserSchema, TodoSchema
+
+@main.route('/s35')
+def ind():
+    session['id'] = 35
+    return 'x'
+
+
 @main.route("/", methods=['GET'])
 def index():
     #logged in
-    
+
     if session:
         return render_template("home.html" )
     return render_template("index.html")
@@ -18,16 +27,16 @@ def index():
 
 @main.route("/api/session", methods=['GET'])
 def user():
-
     if session:
-        print(session)
-        id = session['id']
+        id = session['id']    
         u = User.query.filter_by(id=id).first()
-        
-        user = {'id': u.id, 'username': u.username}
-        return jsonify({'user':user})
+        user = UserSchema().dump(u).data
+        print(user)
+        return jsonify(user=user)
     else:
-        return jsonify({'error':'Not authenticated.'})
+        return jsonify(error='unauthorized')    
+
+
 
 
 
@@ -82,7 +91,7 @@ def register():
                 session['username'] = u.username
                 print(session['id'])             
                 if session['id']:
-                    return jsonify({'session_id': session['id'], 'username': username, 'success': 'true'}) 
+                    return jsonify({'session_id': session['id'], 'username': username}) 
         
 
 
@@ -100,32 +109,57 @@ def query():
     return jsonify({"error": "Invalid parameters."})    
 
 
+@main.route("/api/todos", methods=['GET'])
+def todos():
+    if request.method == "GET" and session:
+        user_id = session['id']
+        todo_rows = Todo.query.filter_by(user_id=user_id).all()
+        #Intitialize the schema class with 'many=True' argument
+        todos_array = TodoSchema(many=True).dump(todo_rows).data
+        #Hash table for todos
+        todos = {}
+        todosById = []
+        index = 0;
+        for todo in todos_array:            
+            todos[todo['id']] = todo
+            todosById.append(todo['id'])
+
+        print(todo)
+        return jsonify(todos=todos, todosById=todosById)
+    return jsonify(error='Invalid request.')
+
+
+
+
 
 
 @main.route("/api/todo", methods=['GET', 'POST'])
 def todo():
-    if request.method == 'POST':
+    if request.method == 'POST' and session:
         data = request.get_json()
         todo = data['todo']
-        t = Todo(content=todo, user_id=session['id'])
-        db.session.add(t)
+        user_id = session['id']    
+        todo_row = Todo(content=todo, user_id=user_id)
+        db.session.add(todo_row)
         db.session.commit()
-        if t:
-            return jsonify({'id':t.id, 'content':t.content, 'date_posted':  t.date_posted, 'status':t.status,  'success': 'true'})
+        todo = TodoSchema().dump(todo_row).data 
+        if todo:
+            return jsonify(todo=todo)
         else:
-            return jsonify({'error':'Something went wrong.'})   
-    elif request.method == "GET":
-        user_id = session['id']
-        todos = Todo.query.filter_by(user_id=user_id).all()
-        t_list = []
-
-        for t in todos:
-            t_obj = {'id':t.id, 'content':t.content, 'date_posted':  t.date_posted, 'status':t.status }
-            t_list.insert(0, t_obj)
-        
-        print(t_list)
-        return jsonify({'todos':t_list, 'success': 'true'})
-
+            return jsonify(error='Something went wrong!')
+ 
+    if request.method == 'GET':
+        id = request.args.get('id')
+        try:
+            todo_row = Todo.query.filter_by(id=id).first()
+            todo = TodoSchema().dump(todo_row).data
+            return jsonify(todo=todo)
+        except Exception as error:
+            print(error)
+            return jsonify(error='Something went wrong.')
+    
+    return jsonify(error='Invalid Request.')
+            
 
 @main.route("/api/todo/status", methods=['POST'])
 def todoStatus():
@@ -133,12 +167,52 @@ def todoStatus():
     id = data['id']
     status = data['status']
     try:
-        todo = Todo.query.filter_by(id=id).first()
-        if status is True:
-            todo.status = False
+        todo_row = Todo.query.filter_by(id=id).first()
+
+        if todo_row.status == True:
+            todo_row.status = False
         else:
-            todo.status = True
+            todo_row.status = True
         db.session.commit()
-        return jsonify({'status':todo.status, 'success':'true'})
+        todo = TodoSchema().dump(todo_row).data
+        print(todo)
+        return jsonify(todo=todo)
     except:
         return jsonify({'error':'Something went wrong.'})
+
+
+@main.route("/api/todo/delete", methods=['POST'])
+def deleteTodo():
+    data = request.get_json()
+    id = data['id']
+    if session['id']:
+        Todo.query.filter_by(id=id).delete()
+        db.session.commit()
+        print('yo')
+        return jsonify(id=id)
+    
+       #     return jsonify({'error': 'Something went wrong'})
+    return jsonify({'error': 'Invalid request.'})   
+
+
+
+@main.route("/api/todo/update", methods=['POST'])
+def updateTodo():
+    data = request.get_json()
+    print(data['id'])
+    id = data['id']
+    content = data['content']
+    user_id = session['id']
+    try:
+        todo_row = Todo.query.filter_by(id=id, user_id=user_id).first()
+        todo_row.content = content
+        db.session.commit()
+        todo = TodoSchema().dump(todo_row).data
+        return jsonify(todo=todo)
+    except:
+        return jsonify({'error':'Something went wrong!'})
+
+    return jsonify({'error': 'Something went wrong.'})
+
+
+

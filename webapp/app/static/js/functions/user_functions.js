@@ -54,7 +54,7 @@ module.exports = {
 
         axios({
             method:'GET',
-            url:'api/todo',
+            url:'api/todos',
             
         }).then(response =>{
             if(response.data.success){

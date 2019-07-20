@@ -1,27 +1,21 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import TodoList from './components/todolist'
+import TodoList from './components/TodoList'
 import Logout from './components/logout'
+import {Provider} from 'react-redux'
+import {connect} from 'react-redux'
+import store from './store'
+import {fetchUser} from './actions/userActions'
 
 var uf = require('./functions/user_functions')
 var auth = require('./functions/auth')
-class App extends Component {
+
+export default class User extends Component {
   constructor(props){
     super(props);
-    this.state = {
-        user : {
-            id: 0,
-            username: ''
-        }     
-    }
-
      this.logout = this.logout.bind(this)
 }
 
-    componentWillMount() { 
-      return uf.getUserData(this)
-    }
-    
     logout(){
         auth.logout()
     }
@@ -29,20 +23,22 @@ class App extends Component {
     
 
   render(){
-      const {id, username} = this.state.user;
-
+     const {user, userLoadingStatus} = this.props
+    if(userLoadingStatus == false){
       return (
           <div>
-          <h4>{username}</h4>
-        
-        <TodoList />
+          <h4>{user.username}</h4>
+
+
         <Logout handleClick={this.logout} />
           </div>
       );    
+    }else{
+        return (
+            <div>loading
+                </div>
+            )
+    }
   }
 }
 
-
-
-const root = document.getElementById('root')
-ReactDOM.render(<App />, root)
